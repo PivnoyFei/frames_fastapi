@@ -29,7 +29,7 @@
 
 ### Стек: 
 ```bash
-Python 3.10, fastapi 0.81, PostgreSQL
+Python 3.10, fastapi 0.85.0, PostgreSQL
 ```
 
 ### Запуск проекта
@@ -50,13 +50,26 @@ python -m venv venv && source venv/Scripts/activate
 ```bash
 python -m pip install --upgrade pip && pip install -r frames/req.txt
 ```
-#### Запускаем тесты:
+
+#### Переходим в папку с файлом docker-compose.yaml:
 ```bash
-pytest
+cd infra
 ```
-#### Запуск сервера:
+#### Запускаем контейнер для тестов, запускаем тесты и останавливаем тестовые контейнеры:
 ```bash
-uvicorn main:app --reload
+docker-compose up -d frames-test &&
+docker-compose exec frames-test pytest &&
+docker-compose down -v
+```
+
+### Запуск проекта
+```bash
+docker-compose up -d frames
+```
+
+#### Останавливаем контейнеры:
+```bash
+docker-compose down -v
 ```
 
 ### Автор

@@ -5,6 +5,8 @@ from uuid import uuid4
 import aiofiles
 from fastapi import APIRouter, File, UploadFile, status
 from fastapi.responses import JSONResponse
+from ormar.exceptions import NoMatch
+
 from images.models import Image
 from settings import STATIC_ROOT
 
@@ -16,7 +18,7 @@ async def get_frames(pk: int):
     """Выдает информацию об изображении в формате JSON."""
     try:
         file = await Image.objects.get(id=pk)
-    except:
+    except NoMatch:
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
             content={"message": "No file"}
@@ -29,7 +31,7 @@ async def get_frames_delete(pk: int):
     """Удаляет файл по id."""
     try:
         file = await Image.objects.get(id=pk)
-        f = dict(file)["title"]
+        f = os.path.join(STATIC_ROOT, dict(file)["title"])
         if os.path.isfile(f):
             os.remove(f)
         await file.delete()
@@ -37,7 +39,7 @@ async def get_frames_delete(pk: int):
             status_code=status.HTTP_200_OK,
             content={"message": "File deleted"}
         )
-    except:
+    except NoMatch:
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
             content={"message": "No file"}
@@ -57,6 +59,7 @@ async def get_frames_save(files: List[UploadFile] = File(...)):
         error["limit"] = "You have submitted more than 15 images"
 
     for file in files:
+        print(file)
         filename = file.filename
         if not filename.lower().endswith(('.jpg', '.jpeg')):
             error[filename] = {
@@ -64,10 +67,12 @@ async def get_frames_save(files: List[UploadFile] = File(...)):
                 "status": status.HTTP_400_BAD_REQUEST
             }
             continue
-        title = f"{STATIC_ROOT}/{uuid4()}.jpg"
+        title = f"{uuid4()}.jpg"
 
         try:
-            async with aiofiles.open(title, "wb") as buffer:
+            async with aiofiles.open(
+                os.path.join(STATIC_ROOT, title), "wb"
+            ) as buffer:
                 await buffer.write(await file.read())
             await Image.objects.create(title=title)  # user=user
             save[filename] = {"status": status.HTTP_201_CREATED}
@@ -79,7 +84,7 @@ async def get_frames_save(files: List[UploadFile] = File(...)):
             continue
         finally:
             file.file.close()
-            
+
     return JSONResponse(
         status_code=status.HTTP_200_OK,
         content={"message": save, "error": error}

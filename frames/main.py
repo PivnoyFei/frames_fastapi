@@ -1,11 +1,11 @@
-
-from db import database, engine, metadata
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from starlette.exceptions import HTTPException as StarletteHTTPException
+
+from db import database, engine, metadata
 from images.api import images_router
 from settings import STATIC_ROOT, TEMPLATES_DIR
-from starlette.exceptions import HTTPException as StarletteHTTPException
 
 # from users.api import user_router
 
