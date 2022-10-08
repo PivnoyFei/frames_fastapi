@@ -70,7 +70,7 @@ JWT_REFRESH_SECRET_KEY = "key"
 ```bash
 cd infra
 ```
-#### Запускаем тестовые контейнеры, для остановки логов контейнера нажмите Ctrl + C:
+#### Запускаем тестовые контейнеры:
 ```bash
 docker-compose run frames-test && docker-compose down -v
 ```

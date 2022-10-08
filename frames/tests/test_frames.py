@@ -65,8 +65,8 @@ def test_get_me(client):
 def test_post_frames_check(client):
     """Проверяет формат файла и лимит в 15 изображений."""
 
-    def __get_image_file(name=f'{FILE}png', size=(1, 1), color=(256, 0, 0)):
-        """Создаст новый файл для записи, если его нет."""
+    def __get_image_file(name=f'{FILE}png'):
+        """Открывает нужный файл."""
         return ("files", open(f"{TEST_ROOT}/{name}", "rb"))
 
     response = client.post("frames/", headers=headers)
@@ -96,7 +96,7 @@ def test_post_frames_check(client):
 
 
 def test_get_frames_check(client):
-    """Проверяет наличие и отсутствие изображения."""
+    """Проверяет наличие и отсутствие файла."""
     response = client.get(f"frames/{PK}", headers=headers)
     assert response.status_code == 200
     assert response.json()["id"] == PK
