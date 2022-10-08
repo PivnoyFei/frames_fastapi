@@ -6,8 +6,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from db import database, engine, metadata
 from images.api import images_router
 from settings import STATIC_ROOT, TEMPLATES_DIR
-
-# from users.api import user_router
+from users.api import user_router
 
 app = FastAPI()
 
@@ -40,5 +39,5 @@ async def custom_exception_handler(request, exc):
         "detail": exc.detail})
 
 
-# app.include_router(user_router)
+app.include_router(user_router)
 app.include_router(images_router)

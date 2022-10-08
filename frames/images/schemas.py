@@ -9,6 +9,6 @@ class GetUser(BaseModel):
 
 class GetImage(BaseModel):
     id: int
-    # user: GetUser
+    user: GetUser
     title: str
     timestamp: date

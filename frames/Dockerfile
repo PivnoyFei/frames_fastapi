@@ -4,4 +4,3 @@ COPY . .
 RUN apt-get update && apt-get install gcc libpq-dev -y
 RUN python3 -m pip install --upgrade pip
 RUN pip install -r req.txt
-#CMD ["uvicorn", "main:app", "--host", "0.0.0.0"]

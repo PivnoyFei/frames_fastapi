@@ -17,7 +17,8 @@ services:
     build:
       context: ../frames
       dockerfile: Dockerfile
-    command: uvicorn main:app --reload --host 0.0.0.0
+    command: 
+      bash -c "pytest"
     restart: always
     volumes:
       - ../frames/:/frames

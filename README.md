@@ -40,26 +40,39 @@ cd frames_fastapi
 ```
 #### Создаем и активируем виртуальное окружение:
 ```bash
-python3 -m venv venv && source venv/bin/activate
+python3 -m venv venv
+source venv/bin/activate
 ```
 #### для Windows
 ```bash
-python -m venv venv && source venv/Scripts/activate
+python -m venv venv
+source venv/Scripts/activate
 ```
 #### Обновиляем pip и ставим зависимости из req.txt:
 ```bash
 python -m pip install --upgrade pip && pip install -r frames/req.txt
 ```
 
+### Перед запуском сервера, в папке infra необходимо создать .env файл со своими данными.
+```bash
+POSTGRES_DB='postgres'
+POSTGRES_USER='postgres'
+POSTGRES_PASSWORD='postgres'
+POSTGRES_SERVER='db'
+POSTGRES_PORT='5432'
+ALGORITHM = "HS256"
+JWT_SECRET_KEY = "key"
+JWT_REFRESH_SECRET_KEY = "key"
+```
+#### Чтобы сгенерировать безопасный случайный секретный ключ, используйте команду ```openssl rand -hex 32```:
+
 #### Переходим в папку с файлом docker-compose.yaml:
 ```bash
 cd infra
 ```
-#### Запускаем контейнер для тестов, запускаем тесты и останавливаем тестовые контейнеры:
+#### Запускаем тестовые контейнеры, для остановки логов контейнера нажмите Ctrl + C:
 ```bash
-docker-compose up -d frames-test &&
-docker-compose exec frames-test pytest &&
-docker-compose down -v
+docker-compose run frames-test && docker-compose down -v
 ```
 
 ### Запуск проекта
@@ -72,5 +85,5 @@ docker-compose up -d frames
 docker-compose down -v
 ```
 
-### Автор
+#### Автор
 [Смелов Илья](https://github.com/PivnoyFei)

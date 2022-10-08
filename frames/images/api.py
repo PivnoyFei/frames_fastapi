@@ -3,22 +3,24 @@ from typing import List
 from uuid import uuid4
 
 import aiofiles
-from fastapi import APIRouter, File, UploadFile, status
+from fastapi import APIRouter, Depends, File, UploadFile, status
 from fastapi.responses import JSONResponse
-from ormar.exceptions import NoMatch
 
 from images.models import Image
 from settings import STATIC_ROOT
+from users import utils
+from users.models import User
 
 images_router = APIRouter(prefix='/frames', tags=["frames"])
 
 
 @images_router.get("/{pk}")
-async def get_frames(pk: int):
+async def get_frames(
+    pk: int, user: User = Depends(utils.get_current_user)
+):
     """Выдает информацию об изображении в формате JSON."""
-    try:
-        file = await Image.objects.get(id=pk)
-    except NoMatch:
+    file = await Image.objects.get_or_none(id=pk)
+    if not file:
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
             content={"message": "No file"}
@@ -27,11 +29,18 @@ async def get_frames(pk: int):
 
 
 @images_router.delete("/{pk}")
-async def get_frames_delete(pk: int):
+async def get_frames_delete(
+    pk: int, user: User = Depends(utils.get_current_user)
+):
     """Удаляет файл по id."""
-    try:
-        file = await Image.objects.get(id=pk)
-        f = os.path.join(STATIC_ROOT, dict(file)["title"])
+    file = await Image.objects.get_or_none(id=pk)
+    if not file:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"message": "No file"}
+        )
+    if user.id == file.user.id:
+        f = os.path.join(STATIC_ROOT, file.title)
         if os.path.isfile(f):
             os.remove(f)
         await file.delete()
@@ -39,20 +48,22 @@ async def get_frames_delete(pk: int):
             status_code=status.HTTP_200_OK,
             content={"message": "File deleted"}
         )
-    except NoMatch:
+    else:
         return JSONResponse(
-            status_code=status.HTTP_404_NOT_FOUND,
-            content={"message": "No file"}
+            status_code=status.HTTP_403_FORBIDDEN,
+            content={"message": "You are not the author"}
         )
 
 
 @images_router.post("/")
-async def get_frames_save(files: List[UploadFile] = File(...)):
+async def get_frames_save(
+    files: List[UploadFile] = File(...),
+    user: User = Depends(utils.get_current_user)
+):
     """
     Принимает от 1 до 15 изображений в формате jpeg
     Сохраняет с именами <UUID>.jpg.
     """
-    # user = await User.objects.first()
     error, save = {}, {}
     if len(files) > 15:
         files = files[:15]
@@ -74,7 +85,7 @@ async def get_frames_save(files: List[UploadFile] = File(...)):
                 os.path.join(STATIC_ROOT, title), "wb"
             ) as buffer:
                 await buffer.write(await file.read())
-            await Image.objects.create(title=title)  # user=user
+            await Image.objects.create(user=user, title=title)
             save[filename] = {"status": status.HTTP_201_CREATED}
         except Exception as e:
             error[filename] = {
