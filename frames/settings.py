@@ -34,9 +34,9 @@ TEST_ROOT = os.path.join(os.path.dirname(__file__), "tests/")
 PK, PK_16 = 1, 16
 FILE = "tolstoy."
 USER_TEST = {
-    "email": "kekki@fake.fake",
-    "username": "kekki",
-    "first_name": "kekki",
-    "last_name": "kekki",
-    "password": "kekki"
+    "email": "fake@fake.fake",
+    "username": "fake",
+    "first_name": "fake",
+    "last_name": "fake",
+    "password": "fake"
 }

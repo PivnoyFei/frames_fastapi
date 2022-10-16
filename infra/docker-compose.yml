@@ -3,7 +3,6 @@ version: '3.7'
 services:
   db-test:
     image: postgres:13.0-alpine
-    restart: always
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     environment:
@@ -19,7 +18,6 @@ services:
       dockerfile: Dockerfile
     command: 
       bash -c "pytest"
-    restart: always
     volumes:
       - ../frames/:/frames
       - ../frames/static/:/frames/static
