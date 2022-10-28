@@ -85,5 +85,10 @@ docker-compose up -d frames
 docker-compose down -v
 ```
 
+#### Запуск проекта без Docker на SQLite
+```bash
+uvicorn main:app --reload
+```
+
 #### Автор
 [Смелов Илья](https://github.com/PivnoyFei)

@@ -18,7 +18,6 @@ POSTGRES_SERVER = os.getenv("POSTGRES_SERVER", default="localhost")
 POSTGRES_PORT = os.getenv("POSTGRES_PORT", default="5432")
 
 TESTING = os.getenv("TESTING")
-
 if TESTING:
     POSTGRES_SERVER = "db-test"
 DATABASE_URL = (f"postgresql://{POSTGRES_USER}:"
@@ -26,6 +25,8 @@ DATABASE_URL = (f"postgresql://{POSTGRES_USER}:"
                 f"{POSTGRES_SERVER}:"
                 f"{POSTGRES_PORT}/"
                 f"{POSTGRES_DB}")
+
+DATABASE_SQLITE = "sqlite:///sqlite.db"
 
 TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "templates/")
 STATIC_ROOT = os.path.join(os.path.dirname(__file__), "static/")

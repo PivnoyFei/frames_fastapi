@@ -1,17 +1,36 @@
-import datetime
-from typing import Optional
+from databases import Database
+from sqlalchemy import Column, ForeignKey, Integer, String, Table, select
 
-import ormar
+from db import metadata
 
-from db import MainMata
-from users.models import User
+inbox = Table(
+    "inbox", metadata,
+    Column("id", Integer, primary_key=True),
+    Column("timestamp", String),
+    Column("title", String(100), unique=True),
+    Column("user", ForeignKey("users.id")),
+)
 
 
-class Image(ormar.Model):
-    class Meta(MainMata):
-        pass
+class Inbox:
+    def __init__(self, database: Database):
+        self.database = database
 
-    id: int = ormar.Integer(primary_key=True)
-    timestamp = ormar.DateTime(default=datetime.datetime.now)
-    title: str = ormar.String(max_length=100)
-    user: Optional[User] = ormar.ForeignKey(User, related_name="user")
+    async def get_image(self, pk: int):
+        query = select([inbox]).where(inbox.c.id == pk)
+        query = await self.database.fetch_one(query)
+        return dict(query) if query else None
+
+    async def get_image_user_title(self, pk: int):
+        query = select(inbox.c.user, inbox.c.title).where(inbox.c.id == pk)
+        query = await self.database.fetch_one(query)
+        return dict(query) if query else None
+
+    async def create_image(self, user: int, title: str, timestamp: str):
+        query = inbox.insert().values(
+            user=user, title=title, timestamp=timestamp)
+        await self.database.execute(query)
+
+    async def delete_image(self, pk: int):
+        query = inbox.delete().where(inbox.c.id == pk)
+        await self.database.execute(query)

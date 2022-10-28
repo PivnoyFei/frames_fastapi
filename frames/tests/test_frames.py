@@ -2,7 +2,7 @@ import pytest
 import sqlalchemy
 from fastapi.testclient import TestClient
 
-from db import metadata
+from db import TEST_DATABASE_URL, metadata
 from main import app
 from settings import DATABASE_URL, FILE, PK, PK_16, TEST_ROOT, USER_TEST
 
@@ -10,10 +10,12 @@ from settings import DATABASE_URL, FILE, PK, PK_16, TEST_ROOT, USER_TEST
 @pytest.fixture(autouse=True, scope="session")
 def create_test_database():
     """Создаем таблицы."""
-    engine = sqlalchemy.create_engine(DATABASE_URL)
+    engine = sqlalchemy.create_engine(TEST_DATABASE_URL)
     metadata.create_all(engine)
     yield
     metadata.drop_all(engine)
+    message = "Не удалось подключится к PostgreSQL"
+    assert DATABASE_URL == TEST_DATABASE_URL, message
 
 
 @pytest.fixture()
@@ -26,6 +28,7 @@ def client():
 def test_post_user_create(client):
     """Создаем юзера."""
     response = client.post("/users/signup", json=USER_TEST)
+    print("==========", response)
     assert response.status_code == 200
     assert len(response.json()) == 4
     for index, value in response.json().items():
@@ -59,7 +62,10 @@ def test_get_me(client):
     response = client.get("/users/me", headers=headers)
     assert response.status_code == 200
     for index, value in response.json().items():
-        assert value == PK if index == "id" else value == USER_TEST[index]
+        if index == 'timestamp':
+            pass
+        else:
+            assert value == PK if index == "id" else value == USER_TEST[index]
 
 
 def test_post_frames_check(client):

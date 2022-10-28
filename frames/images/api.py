@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 from typing import List
 from uuid import uuid4
 
@@ -6,20 +7,22 @@ import aiofiles
 from fastapi import APIRouter, Depends, File, UploadFile, status
 from fastapi.responses import JSONResponse
 
-from images.models import Image
+from db import database
+from images.models import Inbox
 from settings import STATIC_ROOT
-from users import utils
 from users.models import User
+from users.utils import get_current_user
 
 images_router = APIRouter(prefix='/frames', tags=["frames"])
+get_inbox = Inbox(database)
 
 
 @images_router.get("/{pk}")
 async def get_frames(
-    pk: int, user: User = Depends(utils.get_current_user)
+    pk: int, user: User = Depends(get_current_user)
 ):
     """Выдает информацию об изображении в формате JSON."""
-    file = await Image.objects.get_or_none(id=pk)
+    file = await get_inbox.get_image(pk)
     if not file:
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -30,20 +33,20 @@ async def get_frames(
 
 @images_router.delete("/{pk}")
 async def get_frames_delete(
-    pk: int, user: User = Depends(utils.get_current_user)
+    pk: int, user: User = Depends(get_current_user)
 ):
     """Удаляет файл по id."""
-    file = await Image.objects.get_or_none(id=pk)
+    file = await get_inbox.get_image_user_title(pk)
     if not file:
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
             content={"message": "No file"}
         )
-    if user.id == file.user.id:
-        f = os.path.join(STATIC_ROOT, file.title)
+    if user["id"] == file["user"]:
+        f = os.path.join(STATIC_ROOT, file["title"])
         if os.path.isfile(f):
             os.remove(f)
-        await file.delete()
+        await get_inbox.delete_image(pk)
         return JSONResponse(
             status_code=status.HTTP_200_OK,
             content={"message": "File deleted"}
@@ -58,10 +61,12 @@ async def get_frames_delete(
 @images_router.post("/")
 async def get_frames_save(
     files: List[UploadFile] = File(...),
-    user: User = Depends(utils.get_current_user)
+    user: User = Depends(get_current_user)
 ):
     """
-    Принимает от 1 до 15 изображений в формате jpeg
+    Принимает от 1 до 15 изображений в формате jpeg.
+    Если изображений больше сохраняет только первые 15
+    и сообщает пользователю.
     Сохраняет с именами <UUID>.jpg.
     """
     error, save = {}, {}
@@ -70,8 +75,12 @@ async def get_frames_save(
         error["limit"] = "You have submitted more than 15 images"
 
     for file in files:
-        print(file)
         filename = file.filename
+
+        """
+        Если изображение не подходит по формату,
+        записывает его в сообщение об ошибке пользователю и идет дальше.
+        """
         if not filename.lower().endswith(('.jpg', '.jpeg')):
             error[filename] = {
                 "message": "File extension not jpg or jpeg",
@@ -85,17 +94,25 @@ async def get_frames_save(
                 os.path.join(STATIC_ROOT, title), "wb"
             ) as buffer:
                 await buffer.write(await file.read())
-            await Image.objects.create(user=user, title=title)
+            await get_inbox.create_image(
+                user["id"], title, str(datetime.now().strftime("%Y%m%d"))
+            )
             save[filename] = {"status": status.HTTP_201_CREATED}
+
         except Exception as e:
+            buffer = os.path.join(STATIC_ROOT, title)
+            if os.path.isfile(buffer):
+                os.remove(buffer)
             error[filename] = {
                 "message": str(e),
                 "status": status.HTTP_400_BAD_REQUEST
             }
             continue
+
         finally:
             file.file.close()
 
+    """Возвращает перечень созданных элементов"""
     return JSONResponse(
         status_code=status.HTTP_200_OK,
         content={"message": save, "error": error}
