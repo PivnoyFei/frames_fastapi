@@ -21,12 +21,12 @@ reuseable_oauth = OAuth2PasswordBearer(
 
 
 async def get_hashed_password(password: str) -> str:
-    """Хеширует пароль пользователя."""
+    """Хэширует пароль пользователя."""
     return password_context.hash(password)
 
 
 async def verify_password(password: str, hashed_pass: str) -> bool:
-    """Проверяет хешированный пароль входящего пользователя."""
+    """Проверяет хэшированный пароль входящего пользователя."""
     return password_context.verify(password, hashed_pass)
 
 

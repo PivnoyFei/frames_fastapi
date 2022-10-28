@@ -73,7 +73,7 @@ def test_post_frames_check(client):
 
     def __get_image_file(name=f'{FILE}png'):
         """Открывает нужный файл."""
-        return ("files", open(f"{TEST_ROOT}/{name}", "rb"))
+        return "files", open(f"{TEST_ROOT}/{name}", "rb")
 
     response = client.post("frames/", headers=headers)
     assert response.status_code == 422

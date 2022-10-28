@@ -15,7 +15,6 @@ db_user = User(database)
 @user_router.post("/signup", response_model=GetUser)
 async def create_user(data: UserCreate):
     """Создает нового пользователя."""
-    print("======1======", data)
     if await db_user.get_user_by_email(data.email):
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
