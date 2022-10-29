@@ -8,7 +8,7 @@ inbox = Table(
     Column("id", Integer, primary_key=True),
     Column("timestamp", String),
     Column("title", String(100), unique=True),
-    Column("user", ForeignKey("users.id")),
+    Column("user", Integer, ForeignKey("users.id")),
 )
 
 

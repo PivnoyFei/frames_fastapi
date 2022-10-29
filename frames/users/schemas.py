@@ -1,4 +1,5 @@
 import datetime
+from typing import Union
 
 from pydantic import BaseModel, EmailStr
 
@@ -14,8 +15,8 @@ class UserCreate(BaseModel):
     email: EmailStr
     password: str
     username: str
-    first_name: str
-    last_name: str
+    first_name: Union[str, None] = None
+    last_name: Union[str, None] = None
 
 
 class TokenSchema(BaseModel):
@@ -23,13 +24,19 @@ class TokenSchema(BaseModel):
     refresh_token: str
 
 
-class UserBase(BaseModel):
+class Userfull(BaseModel):
     id: int
     username: str
     first_name: str
     last_name: str
     email: EmailStr
     timestamp: datetime.date
+
+
+class UserUpdate(BaseModel):
+    first_name: Union[str, None] = None
+    last_name: Union[str, None] = None
+    email: Union[EmailStr, None] = None
 
 
 class TokenPayload(BaseModel):

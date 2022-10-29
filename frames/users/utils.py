@@ -30,34 +30,33 @@ async def verify_password(password: str, hashed_pass: str) -> bool:
     return password_context.verify(password, hashed_pass)
 
 
-async def __get_token(secret, expire_minutes, subject, expires_delta) -> str:
+async def __get_token(secret, expire_minutes, user, expires_delta) -> str:
     """Вызывается из create_access_token и create_refresh_token."""
     if expires_delta is not None:
         expires_delta = datetime.utcnow() + expires_delta
     else:
         expires_delta = datetime.utcnow() + timedelta(minutes=expire_minutes)
-
-    to_encode = {"exp": expires_delta, "sub": str(subject)}
+    to_encode = {"exp": expires_delta, "sub": str(user)}
     encoded_jwt = jwt.encode(to_encode, secret, settings.ALGORITHM)
     return encoded_jwt
 
 
-async def create_access_token(subject: str, expires_delta: int = None) -> str:
+async def create_access_token(user: str, expires_delta: int = None) -> str:
     """Создает access token."""
     return await __get_token(
         settings.JWT_SECRET_KEY,
         settings.ACCESS_TOKEN_EXPIRE_MINUTES,
-        subject,
+        user,
         expires_delta
     )
 
 
-async def create_refresh_token(subject: str, expires_delta: int = None) -> str:
+async def create_refresh_token(user: str, expires_delta: int = None) -> str:
     """Создает refresh token."""
     return await __get_token(
         settings.JWT_REFRESH_SECRET_KEY,
         settings.REFRESH_TOKEN_EXPIRE_MINUTES,
-        subject,
+        user,
         expires_delta
     )
 

@@ -23,4 +23,3 @@ def test_connect_db():
 TEST_DATABASE_URL = test_connect_db()
 database = databases.Database(TEST_DATABASE_URL)
 engine = sqlalchemy.create_engine(TEST_DATABASE_URL)
-metadata.create_all(engine)

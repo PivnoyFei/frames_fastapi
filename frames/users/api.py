@@ -5,7 +5,8 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from db import database
 from users import utils
 from users.models import User
-from users.schemas import GetUser, TokenSchema, UserBase, UserCreate
+from users.schemas import (GetUser, TokenSchema, UserCreate, Userfull,
+                           UserUpdate)
 
 user_router = APIRouter(prefix='/users', tags=["users"])
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token", scheme_name="JWT")
@@ -14,7 +15,6 @@ db_user = User(database)
 
 @user_router.post("/signup", response_model=GetUser)
 async def create_user(data: UserCreate):
-    """Создает нового пользователя."""
     if await db_user.get_user_by_email(data.email):
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -46,11 +46,33 @@ async def login(data: OAuth2PasswordRequestForm = Depends()):
         )
     return {
         "access_token": await utils.create_access_token(user["username"]),
-        "refresh_token": await utils.create_access_token(user["username"]),
+        "refresh_token": await utils.create_refresh_token(user["username"]),
     }
 
 
-@user_router.get('/me', response_model=UserBase)
-async def get_me(data: UserBase = Depends(utils.get_current_user)):
+@user_router.get('/me', response_model=GetUser)
+async def get_me(user: Userfull = Depends(utils.get_current_user)):
     """Получает информацию об авторизированном пользователе."""
-    return data
+    return user
+
+
+@user_router.post('/update', response_model=UserUpdate)
+async def update_user(
+    data: UserUpdate, user: User = Depends(utils.get_current_user)
+):
+
+    if data.email and await db_user.get_user_by_email(data.email):
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={"message": "Email already exists"}
+        )
+    if not data.first_name:
+        data.first_name = user["first_name"]
+    if not data.last_name:
+        data.last_name = user["last_name"]
+    if not data.email:
+        data.email = user["email"]
+
+    await db_user.update_user(
+        data.first_name, data.last_name, data.email, user["id"])
+    return await db_user.get_user_full(user["username"])

@@ -14,7 +14,7 @@ from users.models import User
 from users.utils import get_current_user
 
 images_router = APIRouter(prefix='/frames', tags=["frames"])
-get_inbox = Inbox(database)
+db_inbox = Inbox(database)
 
 
 @images_router.get("/{pk}")
@@ -22,7 +22,7 @@ async def get_frames(
     pk: int, user: User = Depends(get_current_user)
 ):
     """Выдает информацию об изображении в формате JSON."""
-    file = await get_inbox.get_image(pk)
+    file = await db_inbox.get_image(pk)
     if not file:
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -36,7 +36,7 @@ async def get_frames_delete(
     pk: int, user: User = Depends(get_current_user)
 ):
     """Удаляет файл по id."""
-    file = await get_inbox.get_image_user_title(pk)
+    file = await db_inbox.get_image_user_title(pk)
     if not file:
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -46,7 +46,7 @@ async def get_frames_delete(
         f = os.path.join(STATIC_ROOT, file["title"])
         if os.path.isfile(f):
             os.remove(f)
-        await get_inbox.delete_image(pk)
+        await db_inbox.delete_image(pk)
         return JSONResponse(
             status_code=status.HTTP_200_OK,
             content={"message": "File deleted"}
@@ -94,7 +94,7 @@ async def get_frames_save(
                 os.path.join(STATIC_ROOT, title), "wb"
             ) as buffer:
                 await buffer.write(await file.read())
-            await get_inbox.create_image(
+            await db_inbox.create_image(
                 user["id"], title, str(datetime.now().strftime("%Y%m%d"))
             )
             save[filename] = {"status": status.HTTP_201_CREATED}

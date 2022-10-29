@@ -3,13 +3,14 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from db import database
+from db import database, engine, metadata
 from images.api import images_router
 from settings import STATIC_ROOT, TEMPLATES_DIR
 from users.api import user_router
 
 app = FastAPI()
 app.state.database = database
+metadata.create_all(engine)
 
 templates = Jinja2Templates(directory=TEMPLATES_DIR)
 app.mount("/static", StaticFiles(directory=STATIC_ROOT), name="static")

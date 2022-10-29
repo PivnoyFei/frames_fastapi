@@ -32,6 +32,7 @@ TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "templates/")
 STATIC_ROOT = os.path.join(os.path.dirname(__file__), "static/")
 TEST_ROOT = os.path.join(os.path.dirname(__file__), "tests/")
 
+"""Переменные для тестов."""
 PK, PK_16 = 1, 16
 FILE = "tolstoy."
 USER_TEST = {
@@ -40,4 +41,9 @@ USER_TEST = {
     "first_name": "fake",
     "last_name": "fake",
     "password": "fake"
+}
+USER_UPDATE_TEST = {
+    "email": "fakeupdate@fake.fake",
+    "first_name": "fakeupdate",
+    "last_name": "fakeupdate"
 }
