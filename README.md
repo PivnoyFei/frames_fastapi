@@ -27,9 +27,9 @@
 Опционально требуется реализовать композитную контейнеризацию решения (docker-compose).
 
 
-### Стек: 
+### Стек:
 ```bash
-Python 3.10, fastapi 0.85.0, PostgreSQL
+Python 3.11, fastapi 0.85.0, PostgreSQL 13.0, Docker-compose
 ```
 
 ### Запуск проекта
