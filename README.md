@@ -28,9 +28,11 @@
 
 
 ### Стек:
-```bash
-Python 3.11, fastapi 0.85.0, PostgreSQL 13.0, Docker-compose
-```
+![Python](https://img.shields.io/badge/Python-3.11-blue?style=flat-square&logo=Python)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.85.0-blue?style=flat-square&logo=FastAPI)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-13.0-blue?style=flat-square&logo=PostgreSQL)
+![Docker](https://img.shields.io/badge/Docker-464646?style=flat-square&logo=Docker)
+![Docker-compose](https://img.shields.io/badge/Docker--compose-464646?style=flat-square&logo=Docker)
 
 ### Запуск проекта
 Клонируем репозиторий и переходим в него:
