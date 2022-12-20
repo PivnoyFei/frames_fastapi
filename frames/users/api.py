@@ -11,6 +11,7 @@ from users.schemas import (GetUser, TokenSchema, UserCreate, Userfull,
 user_router = APIRouter(prefix='/users', tags=["users"])
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token", scheme_name="JWT")
 db_user = User(database)
+PROTECTED = Depends(utils.get_current_user)
 
 
 @user_router.post("/signup", response_model=GetUser)
@@ -51,28 +52,24 @@ async def login(data: OAuth2PasswordRequestForm = Depends()):
 
 
 @user_router.get('/me', response_model=GetUser)
-async def get_me(user: Userfull = Depends(utils.get_current_user)):
+async def get_me(user: Userfull = PROTECTED):
     """Получает информацию об авторизированном пользователе."""
     return user
 
 
 @user_router.post('/update', response_model=UserUpdate)
-async def update_user(
-    data: UserUpdate, user: User = Depends(utils.get_current_user)
-):
-
+async def update_user(data: UserUpdate, user: User = PROTECTED):
     if data.email and await db_user.get_user_by_email(data.email):
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
             content={"message": "Email already exists"}
         )
-    if not data.first_name:
-        data.first_name = user["first_name"]
-    if not data.last_name:
-        data.last_name = user["last_name"]
-    if not data.email:
-        data.email = user["email"]
-
     await db_user.update_user(
-        data.first_name, data.last_name, data.email, user["id"])
+        user["id"],
+        first_name=(
+            user["first_name"] if not data.first_name else data.first_name
+        ),
+        last_name=user["last_name"] if not data.last_name else data.last_name,
+        email=user["email"] if not data.email else data.email,
+        )
     return await db_user.get_user_full(user["username"])

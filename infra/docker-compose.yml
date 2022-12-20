@@ -19,7 +19,6 @@ services:
     command: 
       bash -c "pytest"
     volumes:
-      - ../frames/:/frames
       - ../frames/static/:/frames/static
     environment:
       - TESTING=True
@@ -44,7 +43,6 @@ services:
     build:
       context: ../frames
       dockerfile: Dockerfile
-    command: uvicorn main:app --reload --host 0.0.0.0
     restart: always
     volumes:
       - ../frames/:/frames

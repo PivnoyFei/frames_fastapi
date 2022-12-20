@@ -89,7 +89,7 @@ def test_post_user_update(client):
 def test_post_frames_check(client):
     """Проверяет формат файла и лимит в 15 изображений."""
 
-    def __get_image_file(name=f'{FILE}png'):
+    def _get_image_file(name=f'{FILE}png'):
         """Открывает нужный файл."""
         return "files", open(f"{TEST_ROOT}/{name}", "rb")
 
@@ -97,7 +97,7 @@ def test_post_frames_check(client):
     assert response.status_code == 422
 
     response = client.post(
-        "frames/", files=[__get_image_file()], headers=Cache.headers
+        "frames/", files=[_get_image_file()], headers=Cache.headers
     )
     assert response.status_code == 200
     assert response.json() == {
@@ -110,7 +110,7 @@ def test_post_frames_check(client):
         }
     }
 
-    files = [__get_image_file(name=f"{FILE}jpg") for _ in range(PK_16)]
+    files = [_get_image_file(name=f"{FILE}jpg") for _ in range(PK_16)]
     response = client.post("/frames/", files=files, headers=Cache.headers)
     assert response.status_code == 200
     assert response.json() == {

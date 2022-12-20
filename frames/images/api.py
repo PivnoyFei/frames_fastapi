@@ -15,12 +15,11 @@ from users.utils import get_current_user
 
 images_router = APIRouter(prefix='/frames', tags=["frames"])
 db_inbox = Inbox(database)
+PROTECTED = Depends(get_current_user)
 
 
 @images_router.get("/{pk}")
-async def get_frames(
-    pk: int, user: User = Depends(get_current_user)
-):
+async def get_frames(pk: int, user: User = PROTECTED):
     """Выдает информацию об изображении в формате JSON."""
     file = await db_inbox.get_image(pk)
     if not file:
@@ -32,9 +31,7 @@ async def get_frames(
 
 
 @images_router.delete("/{pk}")
-async def get_frames_delete(
-    pk: int, user: User = Depends(get_current_user)
-):
+async def get_frames_delete(pk: int, user: User = PROTECTED):
     """Удаляет файл по id."""
     file = await db_inbox.get_image_user_title(pk)
     if not file:
@@ -61,7 +58,7 @@ async def get_frames_delete(
 @images_router.post("/")
 async def get_frames_save(
     files: List[UploadFile] = File(...),
-    user: User = Depends(get_current_user)
+    user: User = PROTECTED
 ):
     """
     Принимает от 1 до 15 изображений в формате jpeg.

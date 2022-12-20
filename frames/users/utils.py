@@ -15,7 +15,7 @@ from users.schemas import TokenPayload
 db_user = User(database)
 password_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 reuseable_oauth = OAuth2PasswordBearer(
-    tokenUrl="/login",
+    tokenUrl="/users/login",
     scheme_name="JWT"
 )
 

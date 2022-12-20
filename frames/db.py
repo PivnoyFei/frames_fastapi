@@ -1,5 +1,4 @@
 import databases
-import psycopg2
 import sqlalchemy
 
 from settings import DATABASE_SQLITE, DATABASE_URL, USE_POSTGRES

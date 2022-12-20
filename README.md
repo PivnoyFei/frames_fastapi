@@ -48,9 +48,9 @@ source venv/bin/activate
 python -m venv venv
 source venv/Scripts/activate
 ```
-#### Обновиляем pip и ставим зависимости из req.txt:
+#### Обновиляем pip и ставим зависимости из requirements.txt:
 ```bash
-python -m pip install --upgrade pip && pip install -r frames/req.txt
+python -m pip install --upgrade pip && pip install -r frames/requirements.txt
 ```
 
 ### Перед запуском сервера, в папке infra необходимо создать .env файл со своими данными.
@@ -78,6 +78,12 @@ docker-compose run frames-test && docker-compose down -v
 ### Запуск проекта
 ```bash
 docker-compose up -d frames
+```
+
+#### Миграции базы данных (не обязательно):
+```bash
+docker-compose exec frames alembic revision --message="Initial" --autogenerate
+docker-compose exec frames alembic upgrade head
 ```
 
 #### Останавливаем контейнеры:

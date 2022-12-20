@@ -29,9 +29,9 @@ DATABASE_URL = (f"postgresql://{POSTGRES_USER}:"
 
 DATABASE_SQLITE = "sqlite:///sqlite.db"
 
-TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "templates/")
-STATIC_ROOT = os.path.join(os.path.dirname(__file__), "static/")
-TEST_ROOT = os.path.join(os.path.dirname(__file__), "tests/")
+TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "templates")
+STATIC_ROOT = os.path.join(os.path.dirname(__file__), "static")
+TEST_ROOT = os.path.join(os.path.dirname(__file__), "tests")
 
 """Переменные для тестов."""
 PK, PK_16 = 1, 16

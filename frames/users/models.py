@@ -5,7 +5,7 @@ from sqlalchemy import Column, DateTime, Integer, String, Table, select
 from sqlalchemy.sql import func
 
 from db import metadata
-from users.schemas import UserCreate
+from users.schemas import UserCreate, UserUpdate
 
 users = Table(
     "users", metadata,
@@ -43,18 +43,9 @@ class User:
         return dict(query) if query else None
 
     async def create_user(self, user: UserCreate):
-        query = users.insert().values(
-            email=user.email,
-            password=user.password,
-            username=user.username,
-            first_name=user.first_name,
-            last_name=user.last_name,
-        )
+        query = users.insert().values(dict(user))
         await self.database.execute(query)
 
-    async def update_user(
-        self, first_name: str, last_name: str, email: str, id: int
-    ):
-        query = users.update().where(users.c.id == id).values(
-            first_name=first_name, last_name=last_name, email=email)
+    async def update_user(self, id: int, /, **kwargs: UserUpdate):
+        query = users.update().where(users.c.id == id).values(kwargs)
         await self.database.execute(query)
